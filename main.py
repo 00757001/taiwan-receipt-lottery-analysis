@@ -44,9 +44,8 @@ class Main_Frame(object):
         self.btn_quit.place(x=730, y=5)
         self.timeLabel = ttk.Label(root,text="",font=('Arial', 15))
         self.timeLabel.place(x=10,y=250)
-        self.figure = Figure(figsize=(8,5.5), dpi=100)
-        self.figure.subplots_adjust(bottom = 0.2)
-        self.ax = self.figure.add_subplot(111)
+        self.figure = None
+        self.ax = None
         self.start_time = 0
         self.end_time = 0
         #stat1 => 1000萬統計 stat2 => 200萬
@@ -56,6 +55,13 @@ class Main_Frame(object):
         self.stat2_area = {"臺北市":0,"新北市":0,"桃園市":0,"臺中市":0,"臺南市":0,"高雄市":0,"新竹縣":0,"苗栗縣":0,"彰化縣":0,"南投縣":0,"雲林縣":0,"嘉義縣":0,"屏東縣":0,"宜蘭縣":0,"花蓮縣":0,"臺東縣":0,"澎湖縣":0,"金門縣":0,"連江縣":0,"基隆市":0,"新竹市":0,"嘉義市":0}
         self.root.mainloop()
     def generate(self):
+        #歸零 dictionaries
+        for key in self.stat1:
+            self.stat1[key] = 0
+            self.stat2[key] = 0
+        for key in self.stat1_area:
+            self.stat1_area[key] = 0
+            self.stat2_area[key] = 0
         self.start_time = time.time()
         threads = []
         lock = threading.Lock()
@@ -89,17 +95,15 @@ class Main_Frame(object):
         self.generate_mat(choice,Yearx,Yeary,Monthx,Monthy)
 
     def generate_mat(self,choice,Yearx,Yeary,Monthx,Monthy):
+        self.initUI()
         self.end_time = time.time()
         total_time = round(self.end_time-self.start_time,2)
         self.timeLabel.config(text="共花了"+str(total_time)+"秒")
-        print(sum(list(self.stat1_area.values())))
-        print(sum(list(self.stat2_area.values())))
         title = ""+str(Yearx)+"年"+str(Monthx)+"月到"+str(Yeary)+"年"+str(Monthy)+"月"
-        listx = []
+        Data1 = {}
         if choice == 0:
-            listx = [*self.stat1]
             title += "各商品種類中獎次數統計"
-            Data1 ={'商品種類名':list(self.stat1.keys()),
+            Data1 = {'商品種類名':list(self.stat1.keys()),
                     '1000萬': list(self.stat1.values()),
                     '200萬':list(self.stat2.values())
             }
@@ -107,9 +111,9 @@ class Main_Frame(object):
             df1 = df1[['商品種類名','1000萬','200萬']].groupby('商品種類名').sum()
             bar = FigureCanvasTkAgg(self.figure,self.root)
             bar.get_tk_widget().place(x=380, y=50)
-            df1.plot(kind='bar',legend=True, ax=self.ax)
+            df1.plot(kind='bar', ax=self.ax)
             self.ax.set_title(title)
-            self.ax.set_xticklabels(np.arange(len(listx)),listx)
+            #self.ax.set_xticklabels(np.arange(len(listx)),listx)
         else:
             listx = list(self.stat1_area.keys())
             title += "各縣市中獎次數統計"
@@ -123,8 +127,11 @@ class Main_Frame(object):
             bar.get_tk_widget().place(x=380, y=50)
             df1.plot(kind='bar',legend=True, ax=self.ax)
             self.ax.set_title(title)
-            self.ax.set_xticklabels(np.arange(len(listx)),listx)
-            self.ax.set_title(title)
+            #self.ax.set_xticklabels(np.arange(len(listx)),listx)
+    def initUI(self):
+        self.figure = Figure(figsize=(8,5.5), dpi=100)
+        self.figure.subplots_adjust(bottom = 0.2)
+        self.ax = self.figure.add_subplot(111)
         
         
 if __name__ == '__main__':
