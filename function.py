@@ -12,9 +12,6 @@ def job_by_country(year,month,lock,stat1_area,stat2_area):
         addr1 = table1.find_all("td",{'headers':'companyAddress'})
         addr2 = table2.find_all("td",{'headers':'companyAddress2'})
         lock.acquire()# IMPRATIVE
-        #歸零 Dictionary
-        # stat1_area = stat1_area.fromkeys(stat1_area, 0)
-        # stat2_area = stat2_area.fromkeys(stat2_area, 0)
         for add in addr1:
             if add.text[:3] in list(stat1_area.keys()):
                 stat1_area[add.text[:3]]+=1
@@ -42,9 +39,6 @@ def job_by_item(year,month,lock,stat1,stat2):
         data1 = table1.find_all("td",{'headers':'tranItem'})
         data2 = table2.find_all("td",{'headers':'tranItem2'})
         lock.acquire()# IMPRATIVE
-        #歸零
-        # stat1.fromkeys(stat1, 0)
-        # stat2.fromkeys(stat2, 0)
         for data in data1:
             count = 0 
             if(re.findall(r'飲|咖啡|鮮|乳|水|麵|湯',data.text)): stat1['飲品']+=1;count+=1
